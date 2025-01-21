@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Flip Website</title>
+    <style>
+        @font-face {
+            font-family: 'MaplestoryOTFBold';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/MaplestoryOTFBold.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'MaplestoryOTFBold';
+            font-weight: 300;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 20px;
+            position: relative;
+        }
+
+        .card {
+            width: 200px;
+            height: 280px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s, scale 0.6s, left 0.6s, top 0.6s, font-size 0.6s;
+            cursor: pointer;
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg) scale(1.5);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotateY(180deg) scale(1.5);
+            font-size: 2.5rem;
+            z-index: 100;
+        }
+
+        .card-side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-front {
+            background-color: #0077FF;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .card-back {
+            background-color: #ffc107;
+            color: #18191C;
+            transform: rotateY(180deg);
+            text-align: center;
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        .placeholder {
+            width: 196px;
+            height: 276px;
+            background-color: white;
+            border: 2px dashed #ccc;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const questions = [
+                "무인도에 가져갈 3가지 물건",
+                "만약 하루 동안 동물로 변신할 수 있다면 무슨 동물",
+                "어렸을 때 가장 좋아했던 TV 프로그램이나 만화",
+                "영화나 드라마 속 캐릭터가 될 수 있다면 누구를 선택하겠어요? 그 캐릭터의 어떤 점이 닮고 싶은가요?",
+                "복권에 당첨된다면 하고 싶은 것",
+                "TED 강연을 할 수 있다면, 어떤 주제로?",
+                "일주일 동안 하나의 음식만 먹어야 한다면?",
+                "살면서 가본 곳 중 가장 인상 깊었던 여행지",
+                "잠이 들기 전에 꼭 하는 일이나 루틴",
+                "취미나 새로운 스킬 하나를 배워야 한다면?",
+                "혼자만의 시간을 보낼 때 가장 즐겁게 하는 일",
+                "가장 많이 불린 별명과 그 이유는?",
+                "개명할 수 있다면 어떤 이름으로 하고 싶은가?",
+                "최근 나를 가장 설레게 하는 것은?",
+                "초능력을 하나 가질 수 있다면, 어떤 초능력을 얻고 싶으세요?",
+                "다른 사람들이 말하는 당신의 매력 포인트는?",
+                "어린 시절에서 바꾸고 싶은 3가지는?",
+                "집 없이 벤츠 vs 집은 있는데 뚜벅이",
+                "특정 기술을 배우기 위해 가장 효과적인 방법은 무엇이라고 생각하나요?",
+                "어릴 때 생일 선물로 가장 받고 싶었던 것은 무엇인가요?",
+                "스트레스를 해소하는 방법이 있다면 무엇인가요?",
+                "일주일 머리 감기 불가 vs 일주일 양치 불가",
+                "타임머신으로 10년 뒤 미래 vs 10년 전 과거",
+                "가장 자랑스러웠던 순간이 있다면 언제인가요?",
+                "묘비에 남기고 싶은 말은?",
+                "문앞까지 들이닥친 좀비! 맞서싸운다 vs 농성한다",
+                "치킨,피자,떡볶이,빵,커피,술 평생 먹지 않을 경우 10억씩 준다고 할 때 어떤걸 포기하시겠습니까?",
+                "당신이 발명가라면, 세상에 꼭 필요한 물건이나 기술 하나를 발명한다면 무엇을 만들고 싶나요?",
+                "지금 당장 새로운 언어를 완벽히 배울 수 있다면 어떤 언어를 배우고 싶으세요?",
+                "당신만의 특별한 날을 만든다면, 어떤 날로 정하고 싶은가요? 그날엔 무엇을 하고 싶으세요?",
+                "평생 한 가지 색깔의 옷만 입어야 한다면, 어떤 색을 선택하시겠어요?",
+                "인간이 아닌 다른 생명체로 다시 태어난다면, 어떤 생명체가 되고 싶나요?",
+                "지금 당장 어디로든 여행할 수 있다면, 첫 번째로 가고 싶은 곳은 어디인가요?",
+                "한가지 음식을 완벽히 만들 수 있다면 어떤 음식을 가장 잘 만들고 싶나요?",
+                "하루 동안 인터넷 없이 지내야 한다면, 그 시간을 어떻게 보내고 싶으세요?",
+                "우주여행을 할 수 있는 기회가 생긴다면, 가장 가고 싶은 행성이나 장소는 어디인가요?",
+                "과거로 돌아가 지금의 당신에게 한 가지 조언을 해줄 수 있다면, 어떤 말을 하고 싶으신가요?",
+                "당신은 갑자기 뉴스에 인터뷰를 하게 되었다! 무엇이라고 말할건가요?",
+                "당신은 1000만 유튜버다. 귀신이 나온다고 소문난 흉가체험 간다vs안간다",
+                "FANG 이나 MANTA 에서 이직 제의가 온다면 이직한다 vs 안한다"
+            ];
+
+            // Create cards dynamically
+            const shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+
+            let flippedCard = null;
+
+            // Create cards dynamically
+            const container = $('<div class="card-container"></div>');
+            shuffledQuestions.forEach((question, index) => {
+                const card = $(`
+                    <div class="card" data-index="${index}">
+                        <div class="card-side card-front">${index + 1}</div>
+                        <div class="card-side card-back">${question}</div>
+                    </div>
+                `);
+                container.append(card);
+            });
+
+
+            $('body').append(container);
+
+            // Add flip functionality
+            $(document).on('click', '.card', function () {
+                const currentCard = $(this);
+                const placeholder = $('<div class="placeholder"></div>');
+
+                if (currentCard.hasClass('is-flipped')) {
+                    currentCard.removeClass('is-flipped');
+                    flippedCard = null;
+                    currentCard.replaceWith(currentCard.data('original-card'));
+                    return;
+                }
+
+                if (flippedCard) {
+                    flippedCard.removeClass('is-flipped');
+                    flippedCard.replaceWith(flippedCard.data('original-card'));
+                }
+
+                const originalCard = currentCard.clone();
+                currentCard.data('original-card', originalCard);
+                currentCard.replaceWith(placeholder);
+                currentCard.addClass('is-flipped');
+                flippedCard = currentCard;
+                $('body').append(currentCard);
+            });
+        });
+    </script>
+</body>
+</html>
